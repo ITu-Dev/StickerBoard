@@ -1,0 +1,15 @@
+.textButtonWrapper {
+}
+.textButton {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+
+    background-color: transparent;
+    border: none;
+
+    outline: none;
+
+    cursor: pointer;
+    color: var(--controls-color);
+}
