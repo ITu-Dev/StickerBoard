@@ -17,7 +17,7 @@ interface TextButtonProps{
 }
 export const TextButton: FC<TextButtonProps> = x => {
     return <div className={styles.textButtonWrapper}>
-        <button className={styles.textButton} onClick={x.onClick}>
+        <button className={styles.textButton} onClick={x.onClick} style={x.style}>
             { x.text }
         </button>
     </div>
