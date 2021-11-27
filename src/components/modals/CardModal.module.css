@@ -1,0 +1,8 @@
+.wrapper {
+    padding: 75px 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+}

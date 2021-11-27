@@ -1,14 +1,15 @@
 import { createStore,createApi } from "effector";
+import { Console } from "node:console";
 import { ApiEvents } from "../utils/ApiEvenst";
 import { Model } from "../utils/Model";
 
-interface Rectangle {
+export interface Rectangle {
     id?: string
     x: number
     y: number
     rotation: number
-    scaleX: number
-    scaleY: number
+    width: number
+    height: number
     fill: string
 }
 
@@ -19,13 +20,29 @@ export interface RectData {
 interface RectEvents {
     setRects: RectData,
     addRect: Rectangle
+    pushRect: Rectangle
+    removeRect: Rectangle
 }
 
 const store = createStore<RectData>({ rects: []});
 
 const events = createApi<RectData, ApiEvents<RectData, RectEvents>>(store, {
     setRects: (s, p) => ({...s, p}),
-    addRect: (s, p) => ({ rects: [...s.rects, {...p, id: (s.rects.length).toString()} ]})
+    addRect: (s, p) => ({ rects: [...s.rects, {...p, id: (s.rects.length).toString()} ]}),
+    pushRect: (s, p) => {
+        s.rects.push(p)
+        console.log(s.rects, "push");
+        return ({rects: s.rects});
+    },
+    removeRect: (s, p) => {
+        const rect = s.rects.find(r => r.id === p.id)
+        if (rect){
+            const selectedIndex = s.rects.indexOf(rect);
+            s.rects.splice(selectedIndex, 1);
+        }
+        console.log(s.rects, "remove");
+        return s;
+    }
 })
 
 export const rectUnit: Model<RectData, RectEvents> = {

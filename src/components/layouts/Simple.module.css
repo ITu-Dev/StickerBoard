@@ -1,0 +1,27 @@
+.expandee {
+    flex-grow: 1;
+}
+
+/*noinspection CssReplaceWithShorthandSafely*/
+.stack {
+    --spacing-vertical: 0;
+    --spacing-horizontal: 0;
+
+    /* do not merge (stops working when merged) */
+    margin-top: calc(0px - 0.5 * var(--spacing-vertical));
+    margin-bottom: calc(0px - 0.5 * var(--spacing-vertical));
+    margin-left: calc(0px - 0.5 * var(--spacing-horizontal));
+    margin-right: calc(0px - 0.5 * var(--spacing-horizontal));
+}
+
+/*noinspection CssReplaceWithShorthandSafely*/
+.stack > * {
+    margin-top: calc(0.5 * var(--spacing-vertical));
+    margin-bottom: calc(0.5 * var(--spacing-vertical));
+    margin-left: calc(0.5 * var(--spacing-horizontal));
+    margin-right: calc(0.5 * var(--spacing-horizontal));
+}
+
+.stack > .expandee:not(:first-child):not(:last-child) {
+    margin: 0;
+}

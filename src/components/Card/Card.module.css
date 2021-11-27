@@ -1,0 +1,66 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+
+    background: var(--green-ui);
+    padding: 20px 30px 20px;
+    border-bottom: 1px solid #bdbdbd;
+}
+
+.cardHeaderTitle {
+    font-size: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+.cardTitleContent {
+    flex-grow: 1;
+}
+
+.closeButton {
+    padding-top: 3px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.closeButton > img {
+    filter: opacity(0.8) brightness(0.4);
+    width: 15px;
+    height: 15px;
+}
+
+.collapseButton {
+    cursor: pointer;
+    user-select: none;
+    margin: 5px 5px;
+
+    width: 12px;
+    height: 12px;
+    background: url("../../assets/icons/list_markers.png") no-repeat;
+}
+
+.cardContent {
+    padding: 30px;
+    flex-grow: 1;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+}
+
+.cardCollapsed {
+    overflow: hidden;
+    max-height: 0;
+}
+
+.cardBottom {
+    border-top: 1px solid #bdbdbd;
+    padding: 10px;
+}
