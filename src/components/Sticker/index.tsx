@@ -1,8 +1,9 @@
 import Konva from "konva";
 import { KonvaEventObject } from "konva/types/Node";
-import React, { FC, useRef } from "react";
-import { Rect, Transformer } from "react-konva";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { Group, Rect, Transformer } from "react-konva";
 import { Rectangle } from "../../store";
+import { Text } from "../Text/Text";
 
 interface Sticker extends Rectangle{
     index: number
@@ -14,71 +15,102 @@ interface Sticker extends Rectangle{
     onChange:(v: Rectangle) => void
 }
 
-export const Sticker: FC<Sticker> = x => {
-    const rectRef = useRef();
-    const transformRef = useRef();
 
-    React.useEffect(() => {
-        if (x.isSelected) {
-          // we need to attach transformer manually
-          //@ts-ignore
-          transformRef.current.nodes([rectRef.current]);
-          //@ts-ignore
-          transformRef.current.getLayer().batchDraw();
+export const Sticker: FC<Sticker> = x => {
+    
+    const [isTextEditing, setIsTextEditing] = useState(true);
+    const [isTextTransforming, setIsTextTransforming] = useState(false);
+    const [text, setText] = useState("Click to resize. Double click to edit.");
+    const [textWidth, setTextWidth] = useState(x.width);
+    const [textHeight, setTextHeight] = useState(x.height);
+
+    const rectRef = useRef<Konva.Rect>(null);
+    const groupRef = useRef<Konva.Group>(null)
+    const textRef = useRef<Konva.Text>(null);
+    const transformRef = useRef<Konva.Transformer>(null);
+
+    useEffect(() => {
+        if (isTextEditing) {
+            setIsTextEditing(false);
+        } else if (!x.isSelected && isTextTransforming) {
+            setIsTextTransforming(false);
         }
+    }, [isTextEditing, isTextTransforming]);
+
+    function toggleEdit() {
+        setIsTextEditing(!isTextEditing);
+    }
+
+    function toggleTransforming() {
+        setIsTextTransforming(!isTextTransforming);
+    }
+
+    function onTextResize(newWidth: number, newHeight: number) {
+        setTextWidth(newWidth);
+        setTextHeight(newHeight);
+    }
+
+    function onTextChange(value: string) {
+        setText(value)
+    }
+
+    useEffect(() => {
+        if (!x.isSelected) return;
+        if (!transformRef.current) return;
+        if (!rectRef.current) return;
+        if (!groupRef.current) return;
+        if (!textRef.current) return;
+
+        transformRef.current.nodes([rectRef.current, textRef.current]);
+        transformRef.current.getLayer()?.batchDraw();
+
       }, [x.isSelected]);
-   
-    return <>
-    <Rect width={x.width} height={x.height}
-    //@ts-ignore
-    ref={rectRef}
-    x={x.x} y={x.y}
-    onClick={x.onSelect}
-    fill={x.fill}
-     cornerRadius={2}
-    rotation={x.rotation}
-     key={x.index+1}
-    draggable
-    shadowBlur={2}
-    shadowOpacity={0.4}
-    onDragStart={x.onDragStart} 
-    onDragEnd={x.onDragStop} 
-    id={x.id}
-    onTransformEnd={e => {
+
+    const groupTransformHandler = (e: KonvaEventObject<Event>) => {
         const node = rectRef.current;
-        //@ts-ignore
+        if (!node) return;
         const scaleX = node.scaleX();
-        //@ts-ignore
         const scaleY = node.scaleY();
 
-        // we will reset it back
-        //@ts-ignore
         node.scaleX(1);
-        //@ts-ignore
         node.scaleY(1);
+
         x.onChange({
             ...x.restProps,
-            //@ts-ignore
-          width: node.width() * scaleX,
-          //@ts-ignore
-          height: node.height() * scaleY,
+            width: Math.round(node.width() * scaleX),
+            height: Math.round(node.height() * scaleY),
+            rotation: node.rotation()
         });
     }
-}
-    >
-      {
-        // <span>jdsajkdaskdskajdh\kjdfhdskjfhdaskjlfhda</span>
-      }
-    </Rect>
-    {x.isSelected && (
-        <Transformer
-        //@ts-ignore
-          ref={transformRef}
-          boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
-            return newBox;
-          }}
-        />
-      )}
-    </>
+
+    return <>
+    <Group key={x.index+1}
+           id={x.id} draggable
+           ref={groupRef}
+           onDragStart={x.onDragStart}
+           onDragEnd={x.onDragStop} >
+        <Rect width={x.width} height={x.height}
+              x={0} y={0}
+              onClick={x.onSelect}
+              fill={x.fill}
+              cornerRadius={2}
+              shadowBlur={2}
+              shadowOpacity={0.4}
+              ref={rectRef}
+              onTransformEnd={groupTransformHandler}/>
+        <Text x={0}
+              y={0}
+              ref={textRef}
+              value={text}
+              width={textWidth}
+              height={textHeight}
+              onResize={onTextResize}
+              isEditing={isTextEditing}
+              isTransforming={isTextTransforming}
+              onToggleEdit={toggleEdit}
+              onToggleTransform={toggleTransforming}
+              onChange={onTextChange} />
+    </Group>
+    {x.isSelected && (<Transformer ref={transformRef} boundBoxFunc={(oldBox, newBox) => newBox}/>)}
+</>
 }

@@ -1,5 +1,4 @@
-import { createStore,createApi } from "effector";
-import { Console } from "node:console";
+import { createApi, createStore } from "effector";
 import { ApiEvents } from "../utils/ApiEvenst";
 import { Model } from "../utils/Model";
 
@@ -22,6 +21,7 @@ interface RectEvents {
     addRect: Rectangle
     pushRect: Rectangle
     removeRect: Rectangle
+    updateRect: Rectangle
 }
 
 const store = createStore<RectData>({ rects: []});
@@ -42,6 +42,12 @@ const events = createApi<RectData, ApiEvents<RectData, RectEvents>>(store, {
         }
         console.log(s.rects, "remove");
         return s;
+    },
+    updateRect: (s, r) => {
+        //console.log(r)
+        return ({
+            rects: [...s.rects.map(rect => rect.id === r.id ? r : rect)]
+        })
     }
 })
 
