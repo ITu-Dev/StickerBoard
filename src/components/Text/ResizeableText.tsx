@@ -1,7 +1,9 @@
 import React, { ForwardedRef, useEffect, useRef } from "react";
 import { Text, Transformer } from "react-konva";
 import Konva from "konva";
-import { mergeRefs } from "../../utils/MergeRefs";
+import { mergeRefs } from "utils/MergeRefs";
+import { Vector2d } from "konva/types/types";
+import { KonvaEventObject } from "konva/types/Node";
 
 export interface ResizeableTextProps {
     x: number
@@ -9,9 +11,14 @@ export interface ResizeableTextProps {
     value: string
     isSelected: boolean
     width: number
-    onResize: (w: number, h: number) => void
+    fontSize: number
+    color: string
+    onResize: (w: number, h: number, r: number) => void
     onClick: () => void
     onDoubleClick: () => void
+    draggable: boolean
+    dragBoundFn?: (pos: Vector2d) => Vector2d
+    dragStartHandler?: (e: KonvaEventObject<DragEvent>) => void
 }
 
 export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: ForwardedRef<Konva.Text>) => {
@@ -19,7 +26,7 @@ export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: For
     const transformerRef = useRef<Konva.Transformer>(null);
 
     useEffect(() => {
-        if (x.isSelected) return;
+        if (!x.isSelected) return;
         if (!transformerRef.current) return;
         if (!textRef.current) return;
 
@@ -27,6 +34,7 @@ export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: For
         transformerRef.current.getLayer()?.batchDraw();
 
     }, [x.isSelected]);
+
 
     function handleResize() {
         if (textRef.current !== null) {
@@ -37,38 +45,36 @@ export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: For
                 width: newWidth,
                 scaleX: 1
             });
-            x.onResize(newWidth, newHeight);
+            x.onResize(newWidth, newHeight, textNode.rotation());
         }
     }
 
-    const transformer = x.isSelected ? (
-        <Transformer
-            ref={transformerRef}
-            rotateEnabled={false}
-            flipEnabled={false}
-            boundBoxFunc={(oldBox, newBox) =>  newBox}
-        />
-    ) : null;
-    console.log(x.isSelected, "isSelected")
+
     return (
         <>
             <Text
+                draggable={x.draggable}
+                dragBoundFunc={pos => x.dragBoundFn?.(pos) ?? pos}
+                onDragStart={x.dragStartHandler}
                 x={x.x}
                 y={x.y}
                 ref={mergeRefs([textRef, ref])}
                 text={x.value}
-                fill="black"
+                fill={x.color}
                 fontFamily="sans-serif"
-                fontSize={16}
+                fontSize={x.fontSize}
                 perfectDrawEnabled={false}
-                onTransform={handleResize}
+                onTransformEnd={handleResize}
                 onClick={x.onClick}
                 onTap={x.onClick}
                 onDblClick={x.onDoubleClick}
                 onDblTap={x.onDoubleClick}
                 width={x.width}
             />
-            {transformer}
+            {x.isSelected && <Transformer
+                ref={transformerRef}
+                boundBoxFunc={(oldBox, newBox) => newBox}
+            />}
         </>
     );
 })

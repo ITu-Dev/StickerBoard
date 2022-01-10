@@ -1,6 +1,18 @@
 import { createApi, createStore } from "effector";
-import { ApiEvents } from "../utils/ApiEvenst";
-import { Model } from "../utils/Model";
+import { ApiEvents } from "utils/ApiEvenst";
+import { Model } from "utils/Model";
+import { RecursivePartial } from "utils/RecursivePartial";
+
+export interface InnerText {
+    text: string
+    x: number
+    y: number
+    rotation: number
+    width: number
+    height: number
+    fontSize: number
+    color: string
+}
 
 export interface Rectangle {
     id?: string
@@ -10,10 +22,11 @@ export interface Rectangle {
     width: number
     height: number
     fill: string
+    innerText?: InnerText
 }
 
 export interface RectData {
-    rects: Rectangle[] 
+    rects: Rectangle[]
 }
 
 interface RectEvents {
@@ -31,7 +44,6 @@ const events = createApi<RectData, ApiEvents<RectData, RectEvents>>(store, {
     addRect: (s, p) => ({ rects: [...s.rects, {...p, id: (s.rects.length).toString()} ]}),
     pushRect: (s, p) => {
         s.rects.push(p)
-        console.log(s.rects, "push");
         return ({rects: s.rects});
     },
     removeRect: (s, p) => {
@@ -40,11 +52,9 @@ const events = createApi<RectData, ApiEvents<RectData, RectEvents>>(store, {
             const selectedIndex = s.rects.indexOf(rect);
             s.rects.splice(selectedIndex, 1);
         }
-        console.log(s.rects, "remove");
         return s;
     },
     updateRect: (s, r) => {
-        //console.log(r)
         return ({
             rects: [...s.rects.map(rect => rect.id === r.id ? r : rect)]
         })

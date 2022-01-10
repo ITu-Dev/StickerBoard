@@ -2,69 +2,84 @@ import Konva from "konva";
 import { KonvaEventObject } from "konva/types/Node";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { Group, Rect, Transformer } from "react-konva";
-import { Rectangle } from "../../store";
-import { Text } from "../Text/Text";
+import { Rectangle } from "store/StickersStore";
+import { Text } from "components/Text/Text"
+import { useKeydown } from "utils/useKeydown";
+import { selectedStickerTextStore, setSelectedStickerText } from "store/SelectedStickerStore";
+import { useStore } from "effector-react";
 
-interface Sticker extends Rectangle{
+interface StickerProps extends Rectangle{
     index: number
     isSelected: boolean
     onDragStart?: (e: KonvaEventObject<DragEvent>) => void
     onDragStop?: (e: KonvaEventObject<DragEvent>) => void
     onSelect:() => void
-    restProps: Rectangle
     onChange:(v: Rectangle) => void
 }
 
 
-export const Sticker: FC<Sticker> = x => {
-    
-    const [isTextEditing, setIsTextEditing] = useState(true);
+export const Sticker: FC<StickerProps> = x => {
+    const textSelected = useStore(selectedStickerTextStore);
+    const [isTextEditing, setIsTextEditing] = useState(false);
     const [isTextTransforming, setIsTextTransforming] = useState(false);
-    const [text, setText] = useState("Click to resize. Double click to edit.");
-    const [textWidth, setTextWidth] = useState(x.width);
-    const [textHeight, setTextHeight] = useState(x.height);
 
     const rectRef = useRef<Konva.Rect>(null);
     const groupRef = useRef<Konva.Group>(null)
     const textRef = useRef<Konva.Text>(null);
     const transformRef = useRef<Konva.Transformer>(null);
 
-    useEffect(() => {
-        if (isTextEditing) {
-            setIsTextEditing(false);
-        } else if (!x.isSelected && isTextTransforming) {
-            setIsTextTransforming(false);
-        }
-    }, [isTextEditing, isTextTransforming]);
+    const textDragHandler = (e: KonvaEventObject<DragEvent>) => {
+        if (!x.innerText) return;
+        x.onChange({...x, innerText: {...x.innerText, x: e.target.x(), y: e.target.y()} })
+    }
+
+    useKeydown("Escape", e => {
+        setIsTextEditing(false);
+        setIsTextTransforming(false);
+        setSelectedStickerText(null)
+    })
 
     function toggleEdit() {
-        setIsTextEditing(!isTextEditing);
+        setIsTextEditing(p => !p);
+        setIsTextTransforming(false)
     }
 
     function toggleTransforming() {
-        setIsTextTransforming(!isTextTransforming);
+        setIsTextTransforming(p => !p);
+        setIsTextEditing(false)
     }
 
-    function onTextResize(newWidth: number, newHeight: number) {
-        setTextWidth(newWidth);
-        setTextHeight(newHeight);
+    function onTextResize(newWidth: number, newHeight: number, rotation: number) {
+        if (!x.innerText) return;
+        x.onChange({...x, innerText: {
+            ...x.innerText,
+                width: newWidth,
+                height: newHeight,
+                rotation: rotation
+            }})
     }
 
-    function onTextChange(value: string) {
-        setText(value)
-    }
+    useEffect(() => {
+        if (isTextEditing || isTextTransforming)
+            setSelectedStickerText(x);
+        if (!isTextTransforming && !isTextEditing)
+            setSelectedStickerText(null);
+    }, [isTextEditing, isTextTransforming])
 
     useEffect(() => {
         if (!x.isSelected) return;
         if (!transformRef.current) return;
         if (!rectRef.current) return;
         if (!groupRef.current) return;
-        if (!textRef.current) return;
 
-        transformRef.current.nodes([rectRef.current, textRef.current]);
+        if (x.innerText && textRef.current) {
+            transformRef.current.nodes([rectRef.current, textRef.current]);
+        }
+        else
+            transformRef.current.nodes([rectRef.current]);
         transformRef.current.getLayer()?.batchDraw();
 
-      }, [x.isSelected]);
+      }, [x.isSelected, x.innerText]);
 
     const groupTransformHandler = (e: KonvaEventObject<Event>) => {
         const node = rectRef.current;
@@ -76,7 +91,7 @@ export const Sticker: FC<Sticker> = x => {
         node.scaleY(1);
 
         x.onChange({
-            ...x.restProps,
+            ...x,
             width: Math.round(node.width() * scaleX),
             height: Math.round(node.height() * scaleY),
             rotation: node.rotation()
@@ -85,31 +100,39 @@ export const Sticker: FC<Sticker> = x => {
 
     return <>
     <Group key={x.index+1}
-           id={x.id} draggable
+           id={x.id}
+           draggable={!isTextEditing && !isTextTransforming}
            ref={groupRef}
            onDragStart={x.onDragStart}
            onDragEnd={x.onDragStop} >
         <Rect width={x.width} height={x.height}
               x={0} y={0}
-              onClick={x.onSelect}
+              onClick={textSelected === null ? x.onSelect : void 0}
               fill={x.fill}
               cornerRadius={2}
               shadowBlur={2}
               shadowOpacity={0.4}
               ref={rectRef}
               onTransformEnd={groupTransformHandler}/>
-        <Text x={0}
-              y={0}
-              ref={textRef}
-              value={text}
-              width={textWidth}
-              height={textHeight}
-              onResize={onTextResize}
-              isEditing={isTextEditing}
-              isTransforming={isTextTransforming}
-              onToggleEdit={toggleEdit}
-              onToggleTransform={toggleTransforming}
-              onChange={onTextChange} />
+        {x.innerText && <Text x={x.innerText.x}
+               y={x.innerText.y}
+               draggable={isTextTransforming}
+               ref={textRef}
+               dragStartHandler={textDragHandler}
+               value={x.innerText?.text}
+               width={x.innerText.width}
+               height={x.innerText.height}
+               fontSize={x.innerText.fontSize}
+               color={x.innerText.color}
+               onResize={onTextResize}
+               isEditing={isTextEditing}
+               isTransforming={isTextTransforming}
+               onToggleEdit={toggleEdit}
+               onToggleTransform={toggleTransforming}
+               onChange={v => {
+                   if (!x.innerText) return;
+                   x.onChange({...x, innerText: {...x.innerText, text: v}})
+               }}/>}
     </Group>
     {x.isSelected && (<Transformer ref={transformRef} boundBoxFunc={(oldBox, newBox) => newBox}/>)}
 </>

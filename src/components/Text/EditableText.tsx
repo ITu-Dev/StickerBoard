@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import { Text } from 'react-konva';
 import { Html } from "react-konva-utils";
 
-function getStyle(width: number, height: number): CSSProperties {
+function getStyle(width: number, height: number, fontSize: number, color: string): CSSProperties {
     const isFirefox = navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
     const baseStyle: CSSProperties = {
         width: `${width}px`,
@@ -13,14 +13,12 @@ function getStyle(width: number, height: number): CSSProperties {
         background: "none",
         outline: "none",
         resize: "none",
-        color: "black",
-        fontSize: "16px",
+        color: color,
+        fontSize: `${fontSize}px`,
         fontFamily: "sans-serif"
     };
-    if (isFirefox) {
-        return baseStyle;
-    }
-    return {
+
+    return isFirefox ? baseStyle : {
         ...baseStyle,
         marginTop: "-4px"
     };
@@ -35,19 +33,24 @@ export interface EditableInputProps {
     value: string
     width: number
     height: number
+    fontSize: number
+    color: string
 }
 
 export const EditableTextInput: React.FC<EditableInputProps> = x => {
-    console.log(x.isEditing, "isEditing")
+    console.log(x.width, x.height)
     return  x.isEditing
         ? <Html groupProps={{x: x.x, y: x.y}} divProps={{style: {opacity: 1}}}>
-            <textarea value={x.value} onChange={v => x.onChange(v.currentTarget.value)}
-                      style={getStyle(x.width, x.height)}/>
+            <textarea value={x.value} onChange={v => x.onChange(v.currentTarget.value)} onClick={() => x.onToggleEdit?.(!x.isEditing)}
+                      style={getStyle(x.width, x.height, x.fontSize, x.color)}/>
         </Html>
         : <Text x={x.x}
+                draggable
+                onClick={() => x.onToggleEdit?.(!x.isEditing)}
                 y={x.y}
                 width={x.width}
                 text={x.value}
+                fontSize={x.fontSize}
         />
 }
 
