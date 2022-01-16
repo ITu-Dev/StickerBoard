@@ -1,7 +1,6 @@
 import { createApi, createStore } from "effector";
 import { ApiEvents } from "utils/ApiEvenst";
 import { Model } from "utils/Model";
-import { RecursivePartial } from "utils/RecursivePartial";
 
 export interface InnerText {
     text: string

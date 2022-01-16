@@ -42,7 +42,7 @@ export const Card: FC<CardProps> = forwardRef<HTMLDivElement, CardProps>((x, ref
                 <Expandee />
                 {
                     x.hasCloseButton &&
-                        <div onClick={x.onClose} className={styles.closeButton}><img src={img} /></div>
+                        <div onClick={x.onClose} className={styles.closeButton}><img src={img}  alt=''/></div>
                 }
             </div>
         </div>

@@ -23,6 +23,7 @@ const nop = (): void => void(0);
 
 export const CardModal: React.FC<CardModalProps> = x => {
     const close = x.close === "disabled" ? undefined : x.close;
+
     const closeOnEsc = (ev: KeyboardEvent) => {
         if (ev.key === "Escape")
             close?.();

@@ -24,7 +24,6 @@ export interface ResizeableTextProps {
 export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: ForwardedRef<Konva.Text>) => {
     const textRef = useRef<Konva.Text>(null);
     const transformerRef = useRef<Konva.Transformer>(null);
-
     useEffect(() => {
         if (!x.isSelected) return;
         if (!transformerRef.current) return;

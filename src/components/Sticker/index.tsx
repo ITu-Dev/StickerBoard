@@ -64,7 +64,7 @@ export const Sticker: FC<StickerProps> = x => {
             setSelectedStickerText(x);
         if (!isTextTransforming && !isTextEditing)
             setSelectedStickerText(null);
-    }, [isTextEditing, isTextTransforming])
+    }, [isTextEditing, isTextTransforming, x])
 
     useEffect(() => {
         if (!x.isSelected) return;
