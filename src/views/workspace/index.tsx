@@ -40,7 +40,6 @@ export const Workspace: FC = x => {
         }
       };
 
-
     const onDragStopHandler = (e: KonvaEventObject<DragEvent>) => {};
 
     return <div className={styles.workspace}>
@@ -50,7 +49,7 @@ export const Workspace: FC = x => {
             
             <Layer>
                 {
-                    store.rects?.map((r, index) => <Sticker
+                    store.map((r, index) => <Sticker
                         {...r}
                             width={r.width}
                             height={r.height}

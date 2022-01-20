@@ -24,43 +24,28 @@ export interface Rectangle {
     innerText?: InnerText
 }
 
-export interface RectData {
-    rects: Rectangle[]
-}
-
 interface RectEvents {
-    setRects: RectData,
+    setRects: Rectangle[],
     addRect: Rectangle
     pushRect: Rectangle
     removeRect: Rectangle
     updateRect: Rectangle
 }
 
-const store = createStore<RectData>({ rects: []});
+const store = createStore<Rectangle[]>([]);
 
-const events = createApi<RectData, ApiEvents<RectData, RectEvents>>(store, {
-    setRects: (s, p) => ({...s, p}),
-    addRect: (s, p) => ({ rects: [...s.rects, {...p, id: (s.rects.length).toString()} ]}),
+const events = createApi<Rectangle[], ApiEvents<Rectangle[], RectEvents>>(store, {
+    setRects: (s, p) => ([...s, ...p]),
+    addRect: (s, p) => ([...s, {...p, id: (s.length).toString()} ]),
     pushRect: (s, p) => {
-        s.rects.push(p)
-        return ({rects: s.rects});
+        s.push(p)
+        return (s);
     },
-    removeRect: (s, p) => {
-        const rect = s.rects.find(r => r.id === p.id)
-        if (rect){
-            const selectedIndex = s.rects.indexOf(rect);
-            s.rects.splice(selectedIndex, 1);
-        }
-        return s;
-    },
-    updateRect: (s, r) => {
-        return ({
-            rects: [...s.rects.map(rect => rect.id === r.id ? r : rect)]
-        })
-    }
+    removeRect: (s, p) => s.filter(r => r.id !== p.id),
+    updateRect: (s, r) => s.map(rect => rect.id === r.id ? r : rect)
 })
 
-export const rectUnit: Model<RectData, RectEvents> = {
+export const rectUnit: Model<Rectangle[], RectEvents> = {
     store: store,
     events
 }

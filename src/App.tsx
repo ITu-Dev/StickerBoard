@@ -1,14 +1,14 @@
 import React from 'react';
 import styles from './App.module.css';
-import { ModalPresenter } from 'components/modals';
 import { Sidebar } from 'components/Sidebar';
 import { Workspace } from 'views/workspace';
+import { Login } from "views/Login";
 
 function App() {
 
   return <div >
-    <ModalPresenter />
     <div className={styles.App}>
+      {/*<Login />*/}
       <Sidebar />
       <Workspace />
   </div>

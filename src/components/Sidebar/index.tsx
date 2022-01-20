@@ -1,17 +1,21 @@
 import React, { FC, useState } from "react";
 import { rectUnit } from "store/StickersStore";
 import { ColorButton, stickerColors, StickerColors, stickerColors as col, textColors } from "../ColorButton";
-import { TextButton } from "../TextButton";
 import styles from "./Sidebar.module.css"
 import { useStore } from "effector-react";
-import { selectedStickerStore, selectedStickerTextStore } from "store/SelectedStickerStore";
+import {
+    selectedStickerStore,
+    selectedStickerTextStore,
+    setSelectedSticker,
+    setSelectedStickerText
+} from "store/SelectedStickerStore";
 import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 
 interface SidebarProps{
 
 }
 
-export const Sidebar: FC<SidebarProps> = x => {
+export const Sidebar: FC<SidebarProps> = () => {
     const selectedSticker = useStore(selectedStickerStore);
     const selectedStickerText = useStore(selectedStickerTextStore)
     const [selectedColor, setSelectedColor] = useState<StickerColors>("orange")
@@ -28,20 +32,23 @@ export const Sidebar: FC<SidebarProps> = x => {
       }
 
       const onNewTextClickHandler = () => {
-        if (selectedSticker)
-          rectUnit.events.updateRect({
-              ...selectedSticker,
-              innerText: {
-                  text: "One click to transform. Double click to edit. Escape to close",
-                  x: 5,
-                  y: 5,
-                  width: 200,
-                  height: 100,
-                  rotation: 0,
-                  fontSize: 14,
-                  color: "#555555"
+          if (selectedSticker) {
+              const updatedSticker = {
+                  ...selectedSticker,
+                  innerText: {
+                      text: "One click to transform. Double click to edit. Escape to close",
+                      x: 5,
+                      y: 5,
+                      width: 200,
+                      height: 100,
+                      rotation: 0,
+                      fontSize: 14,
+                      color: "#555555"
+                  }
               }
-          })
+              setSelectedSticker(updatedSticker)
+              rectUnit.events.updateRect(updatedSticker)
+          }
       }
 
     const deleteSticker = () => {
@@ -50,24 +57,26 @@ export const Sidebar: FC<SidebarProps> = x => {
     }
 
     const stickerEdit = <div className={styles.stickerEdit}>
-        <TextButton text="+ New sticker" onClick={onNewStickerClickHandler} style={{fontSize: 24}}/>
+        <Button variant="text" onClick={onNewStickerClickHandler} color="warning" size="large">+ New sticker</Button>
         <div className={styles.colorBlock}>
            {
                Object.keys(stickerColors).map((v,i) => <ColorButton key={i}
                     color={v as StickerColors}
-                    style={{justifySelf: "center", 
+                    style={{justifySelf: "center",
                     border: v === selectedColor ? "2px solid #6E625C" : ""}}
                     onClick={() => setSelectedColor(v as StickerColors)}/>)
            }
         </div>
-        {selectedSticker && <Button variant="contained" color="error" onClick={() => deleteSticker()}>Delete sticker</Button>}
-        {selectedSticker && selectedSticker.innerText === undefined && <TextButton text="+ New text" onClick={onNewTextClickHandler} style={{fontSize: 24}}/>}
+        {selectedSticker && <Button variant="outlined" color="error" size="small" onClick={() => deleteSticker()}>Delete sticker</Button>}
+        {selectedSticker && selectedSticker.innerText === undefined
+            && <Button variant="text" color="warning" onClick={onNewTextClickHandler} size="large">+ New text</Button>}
     </div>
 
     const changeTextColor = (color: string) => {
         if (!selectedStickerText) return;
         if (!selectedStickerText.innerText) return;
         rectUnit.events.updateRect({...selectedStickerText, innerText: {...selectedStickerText.innerText, color: color}})
+        setSelectedStickerText({...selectedStickerText, innerText: undefined})
     }
 
     const changeFontSize = (size: number) => {
@@ -109,11 +118,11 @@ export const Sidebar: FC<SidebarProps> = x => {
             </Select>
         </FormControl>
 
-        <Button variant="contained" color="error" onClick={() => deleteText()}>Delete text</Button>
+        <Button variant="outlined" size="small" color="error" onClick={() => deleteText()}>Delete text</Button>
     </div>
 
     return <div className={styles.sidebar}>
         {stickerEdit}
-        {selectedStickerText && textEdit}
+        {selectedStickerText?.innerText && textEdit}
     </div>
 }
