@@ -8,9 +8,9 @@ function App() {
 
   return <div >
     <div className={styles.App}>
-      {/*<Login />*/}
-      <Sidebar />
-      <Workspace />
+      <Login />
+      {/*<Sidebar />*/}
+      {/*<Workspace />*/}
   </div>
   
   </div>  
