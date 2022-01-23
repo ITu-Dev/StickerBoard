@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { rectUnit } from "store/StickersStore";
+import { stickersUnit } from "store/StickersStore";
 import { ColorButton, stickerColors, StickerColors, stickerColors as col, textColors } from "../ColorButton";
 import styles from "./Sidebar.module.css"
 import { useStore } from "effector-react";
@@ -10,6 +10,7 @@ import {
     setSelectedStickerText
 } from "store/SelectedStickerStore";
 import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { StickerService } from "api/StickerService";
 
 interface SidebarProps{
 
@@ -21,39 +22,45 @@ export const Sidebar: FC<SidebarProps> = () => {
     const [selectedColor, setSelectedColor] = useState<StickerColors>("orange")
 
     const onNewStickerClickHandler = () => {
-        rectUnit.events.addRect({
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2,
-          width: 350,
-          height: 250,
-          fill: col[selectedColor],
-          rotation: 0
-        })
+        StickerService.create({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+            width: 350,
+            height: 250,
+            colorSticker: col[selectedColor],
+            rotation: 0})
+            .then(p => stickersUnit.events.addRect(p))
       }
 
       const onNewTextClickHandler = () => {
           if (selectedSticker) {
+              const field = {
+                  text: "One click to transform. Double click to edit. Escape to close",
+                  x: 5,
+                  y: 5,
+                  width: 200,
+                  height: 100,
+                  rotation: 0,
+                  fontSize: 14,
+                  color: "#555555"
+              }
               const updatedSticker = {
                   ...selectedSticker,
-                  innerText: {
-                      text: "One click to transform. Double click to edit. Escape to close",
-                      x: 5,
-                      y: 5,
-                      width: 200,
-                      height: 100,
-                      rotation: 0,
-                      fontSize: 14,
-                      color: "#555555"
-                  }
+                  innerText: field
               }
-              setSelectedSticker(updatedSticker)
-              rectUnit.events.updateRect(updatedSticker)
+              StickerService.updateStickerText(field)
+                  .then(p => {
+                      setSelectedSticker({...selectedSticker, field: p})
+                      stickersUnit.events.updateRect({...selectedSticker, field: p})
+                  })
           }
       }
 
     const deleteSticker = () => {
         if (!selectedSticker) return;
-        rectUnit.events.removeRect(selectedSticker)
+        StickerService.deleteSticker(selectedSticker.uuid)
+            .then(() => stickersUnit.events.removeRect(selectedSticker))
+
     }
 
     const stickerEdit = <div className={styles.stickerEdit}>
@@ -68,27 +75,29 @@ export const Sidebar: FC<SidebarProps> = () => {
            }
         </div>
         {selectedSticker && <Button variant="outlined" color="error" size="small" onClick={() => deleteSticker()}>Delete sticker</Button>}
-        {selectedSticker && selectedSticker.innerText === undefined
+        {selectedSticker && selectedSticker.field === undefined
             && <Button variant="text" color="warning" onClick={onNewTextClickHandler} size="large">+ New text</Button>}
     </div>
 
     const changeTextColor = (color: string) => {
         if (!selectedStickerText) return;
-        if (!selectedStickerText.innerText) return;
-        rectUnit.events.updateRect({...selectedStickerText, innerText: {...selectedStickerText.innerText, color: color}})
-        setSelectedStickerText({...selectedStickerText, innerText: undefined})
+        if (!selectedStickerText.field) return;
+        StickerService.updateStickerText({...selectedStickerText.field, color: color})
+            .then(p => stickersUnit.events.updateRect(p))
     }
 
     const changeFontSize = (size: number) => {
         if (!selectedStickerText) return;
-        if (!selectedStickerText.innerText) return;
-        rectUnit.events.updateRect({...selectedStickerText, innerText: {...selectedStickerText.innerText, fontSize: size}})
+        if (!selectedStickerText.field) return;
+        StickerService.updateStickerText({...selectedStickerText.field, fontSize: size})
+            .then(p => stickersUnit.events.updateRect(p))
     }
 
     const deleteText = () => {
         if (!selectedStickerText) return;
-        if (!selectedStickerText.innerText) return;
-        rectUnit.events.updateRect({...selectedStickerText, innerText: undefined})
+        if (!selectedStickerText.field) return;
+        StickerService.deleteField(selectedStickerText.field.uuid)
+            .then(() => stickersUnit.events.updateRect({...selectedStickerText, field: undefined}))
     }
 
     const textEdit = <div className={styles.textEditSection}>
@@ -108,7 +117,7 @@ export const Sidebar: FC<SidebarProps> = () => {
             <Select id="font-size-select"
                     label="Font size"
                     style={{width: 120, height: 40}}
-                    value={selectedStickerText?.innerText?.fontSize}
+                    value={selectedStickerText?.field?.fontSize}
                     onChange={v => changeFontSize(v.target.value as number)}>
                 {
                     Array.from(Array(60).keys())
@@ -123,6 +132,6 @@ export const Sidebar: FC<SidebarProps> = () => {
 
     return <div className={styles.sidebar}>
         {stickerEdit}
-        {selectedStickerText?.innerText && textEdit}
+        {selectedStickerText?.field && textEdit}
     </div>
 }
