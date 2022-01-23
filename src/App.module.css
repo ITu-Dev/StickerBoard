@@ -1,6 +1,7 @@
 .App {
-  display: flex;
-  text-align: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: center;
   position: fixed;
   top: 0;
   left: 0;

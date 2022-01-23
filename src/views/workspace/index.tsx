@@ -1,35 +1,71 @@
-import React, { FC } from "react";
-import { rectUnit } from "../../store";
+import React, { FC, useLayoutEffect, useState } from "react";
+import { Rectangle, rectUnit } from "store/StickersStore";
 import { useStore } from "effector-react";
 import styles from "./Workspase.module.css"
-import { Layer, Rect, Stage } from "react-konva";
+import { Layer, Stage } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
+import { Sticker } from "components/Sticker";
+import { selectedStickerStore, setSelectedSticker } from "store/SelectedStickerStore";
+
+interface windowSize {
+    width: number
+    height: number
+}
+
 
 export const Workspace: FC = x => {
     const store = useStore(rectUnit.store);
+    const [windowSize, setWidowSize] = useState<windowSize>({width: 500, height: 500})
+    const selected = useStore(selectedStickerStore);
 
-    const onDragStartHandler = (e: KonvaEventObject<DragEvent>) => {
-        // console.log(e.target.id())
-    }
 
-    const onDragStopHandler = (e: KonvaEventObject<DragEvent>) => {
-        if(store.rects.find(r => r.id === e.target.id())) 
-            console.log(e.currentTarget.getPosition(), e.target.id())
-    }
-    
+    useLayoutEffect(() => {
+        const updateSize = () => {
+            setWidowSize({width: window.innerWidth, height: window.innerHeight});
+        }
+        window.addEventListener("resize", updateSize)
+        updateSize()
+    },[])
+
+    const onDragStartHandler = (e: KonvaEventObject<DragEvent>, r: Rectangle) => {
+        rectUnit.events.updateRect({...r, x: e.target.x(), y: e.target.y()})
+    };
+
+    //@ts-ignore
+    const checkDeselect = (e) => {
+        // deselect when clicked on empty area
+        const clickedOnEmpty = e.target === e.target.getStage();
+        if (clickedOnEmpty) {
+            setSelectedSticker(null)
+        }
+      };
+
+    const onDragStopHandler = (e: KonvaEventObject<DragEvent>) => {};
+
     return <div className={styles.workspace}>
-       
-        <Stage width={1660} height={1080}>
+        <Stage width={windowSize.width} height={windowSize.height}
+                onMouseDown={checkDeselect}
+                onTouchStart={checkDeselect}>
+            
             <Layer>
                 {
-                    store.rects?.map((r, index) => <Rect width={100} height={150}
+                    store.map((r, index) => <Sticker
+                        {...r}
+                            width={r.width}
+                            height={r.height}
                             x={r.x} y={r.y}
-                            scaleX={r.scaleX} scaleY={r.scaleY}
-                            fill={r.fill} cornerRadius={2}
-                            rotation={r.rotation} key={index+1}
-                            draggable
-                            onDragStart={onDragStartHandler} 
-                            onDragEnd={onDragStopHandler} id={r.id}/>)
+                            key={index}
+                            onSelect={() => {
+                                setSelectedSticker(r)
+                            }}
+                            onChange={(n) => rectUnit.events.updateRect(n)}
+                            isSelected={r.id === selected?.id}
+                            fill={r.fill}
+                            rotation={r.rotation} 
+                            index={index}
+                            onDragStart={(e) => onDragStartHandler(e, r)}
+                            onDragStop={onDragStopHandler}
+                            id={r.id}/>)
                 }
             </Layer>
         </Stage>
