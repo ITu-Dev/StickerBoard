@@ -1,6 +1,5 @@
 {
   "name": "sticker-board",
-  "homepage": "https://gentle-flower-072beb203.1.azurestaticapps.net/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -29,7 +28,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3002 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

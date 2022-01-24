@@ -14,7 +14,7 @@ export namespace AuthService {
     }
 
     export async function auth(data: AuthData) {
-        api.post("/auth", {login: data.login, password: data.password})
+        api.post("/Identity", {login: data.login, password: data.password})
             .then(p => setUser(p.data as unknown as User))
             .catch(e => {
                 console.error(e)
