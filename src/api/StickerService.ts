@@ -3,10 +3,12 @@ import { UserStore } from "store/UserStore";
 import { Field, StickerModel } from "store/StickersStore";
 
 export namespace StickerService {
-    export async function getAll(id: number) {
+    export async function getAll() {
         const userId = UserStore.getState()?.idUser
         if (!userId) return;
         return await api.get(`/StickerBoard/${userId}`)
+            .then(p => p.data)
+            .catch(console.error)
     }
 
     export async function create( data: Partial<StickerModel>) {
