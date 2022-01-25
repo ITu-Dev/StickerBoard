@@ -1,6 +1,7 @@
 import { createApi, createStore } from "effector";
 import { ApiEvents } from "utils/ApiEvenst";
 import { Model } from "utils/Model";
+import { setSelectedSticker } from "store/SelectedStickerStore";
 
 export interface Field {
     idField: number
@@ -50,9 +51,8 @@ const events = createApi<StickerModel[], ApiEvents<StickerModel[], StickerEvents
     updateRect: (s, r) => s.map(rect => rect.idSticker === r.idSticker ? r : rect)
 })
 
-events.addRect.watch(p => console.log(p, "effect"))
-events.updateRect.watch(console.log)
-events.removeRect.watch(console.log)
+events.updateRect.watch(p => setSelectedSticker(p))
+
 
 export const stickersUnit: Model<StickerModel[], StickerEvents> = {
     store: store,

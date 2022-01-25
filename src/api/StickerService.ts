@@ -45,7 +45,19 @@ export namespace StickerService {
         const userId = UserStore.getState()?.idUser
         const stickerUuid = selectedStickerStore.getState()?.uuid
         if (!userId && !stickerUuid) return;
-        return await api.put(`/StickerBoard/putfiled/${userId}`, {...data, idField: 0, stickerUuid: stickerUuid, uuid: "0"})
+        return await api.put(`/StickerBoard/putfiled/${userId}`, {
+            idField: 0,
+            stickerUuid: stickerUuid,
+            uuid: "0",
+            text: data.text,
+            x: data.x,
+            y: data.y,
+            rotation: data.rotation,
+            width: data.width,
+            height: data.height,
+            fontSize: data.fontSize,
+            color: data.color,
+        })
             .then(p => p.data)
             .catch(console.error)
     }

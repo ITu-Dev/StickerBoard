@@ -45,10 +45,7 @@ export const Sidebar: FC<SidebarProps> = () => {
                   fontSize: 14,
                   color: "#555555"
               }
-              const updatedSticker = {
-                  ...selectedSticker,
-                  innerText: field
-              }
+
               StickerService.updateStickerText(field)
                   .then(p => {
                       setSelectedSticker({...selectedSticker, field: p})
@@ -133,7 +130,7 @@ export const Sidebar: FC<SidebarProps> = () => {
 
     return <div className={styles.sidebar}>
         {stickerEdit}
-        {selectedStickerText?.field !== null && textEdit}
+        {selectedStickerText?.field && textEdit}
         <Button variant="text"
                 color="error"
                 size="small"

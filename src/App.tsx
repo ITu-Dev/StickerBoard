@@ -21,7 +21,7 @@ function App() {
     useEffect(() => {
         if (user)
             StickerService.getAll()
-                //.then(p => stickersUnit.events.setRects(p.stickers))
+                .then(p => stickersUnit.events.setRects(p))
     }, [user])
 
 
