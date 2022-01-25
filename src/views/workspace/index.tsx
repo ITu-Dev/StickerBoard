@@ -45,7 +45,9 @@ export const Workspace: FC = x => {
       };
 
     const onDragStopHandler = (e: KonvaEventObject<DragEvent>, r: StickerModel) => {
-        StickerService.updateSticker(r)
+        const founded = store.find(s => s.idSticker === r.idSticker)
+        if (founded)
+            StickerService.updateSticker(r)
     };
 
     return <div className={styles.workspace}>
