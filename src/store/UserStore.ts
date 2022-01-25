@@ -1,4 +1,4 @@
-import { createEvent, createStore } from "effector";
+import { createEffect, createEvent, createStore } from "effector";
 
 export interface User {
     idUser: number

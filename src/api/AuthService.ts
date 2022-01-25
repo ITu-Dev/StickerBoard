@@ -15,14 +15,19 @@ export namespace AuthService {
 
     export async function auth(data: AuthData) {
         api.post("/Identity", {login: data.login, password: data.password})
-            .then(p => setUser(p.data as unknown as User))
+            .then(p => {
+                localStorage.setItem("user", JSON.stringify(p.data))
+                setUser(p.data as unknown as User)
+            })
             .catch(e => {
                 console.error(e)
-                setUser({
+                const mockuser = {
                     idUser: 1,
                     login: 'login',
                     userName: 'username'
-                })
+                }
+                setUser(mockuser)
+                localStorage.setItem("user", JSON.stringify(mockuser))
             })
     }
 

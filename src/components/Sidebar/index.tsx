@@ -11,6 +11,7 @@ import {
 } from "store/SelectedStickerStore";
 import { Button, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { StickerService } from "api/StickerService";
+import { setUser } from "store/UserStore";
 
 interface SidebarProps{
 
@@ -133,5 +134,13 @@ export const Sidebar: FC<SidebarProps> = () => {
     return <div className={styles.sidebar}>
         {stickerEdit}
         {selectedStickerText?.field && textEdit}
+        <Button variant="text"
+                color="error"
+                size="small"
+                sx={{marginTop: "auto"}}
+                onClick={() => {
+            localStorage.clear()
+            setUser(null)
+            }}>exit</Button>
     </div>
 }
