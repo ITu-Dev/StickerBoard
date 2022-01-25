@@ -1,6 +1,7 @@
 import { api } from "utils/api";
 import { UserStore } from "store/UserStore";
 import { Field, StickerModel } from "store/StickersStore";
+import { selectedStickerStore } from "store/SelectedStickerStore";
 
 export namespace StickerService {
     export async function getAll() {
@@ -42,8 +43,9 @@ export namespace StickerService {
 
     export async function updateStickerText(data: Partial<Field>) {
         const userId = UserStore.getState()?.idUser
-        if (!userId) return;
-        return await api.put(`/StickerBoard/putfiled/${userId}`, {...data})
+        const stickerUuid = selectedStickerStore.getState()?.uuid
+        if (!userId && !stickerUuid) return;
+        return await api.put(`/StickerBoard/putfiled/${userId}`, {...data, idField: 0, stickerUuid: stickerUuid, uuid: "0"})
             .then(p => p.data)
             .catch(console.error)
     }
