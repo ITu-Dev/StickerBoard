@@ -35,7 +35,7 @@ export namespace StickerService {
     export async function updateSticker(data: StickerModel) {
         const userId = UserStore.getState()?.idUser
         if (!userId) return;
-        return await api.put(`/StickerBoard/putsticker/${userId}`, {data})
+        return await api.put(`/StickerBoard/putsticker/${userId}`, {...data})
             .then(p => p.data)
             .catch(console.error)
     }
@@ -43,7 +43,7 @@ export namespace StickerService {
     export async function updateStickerText(data: Partial<Field>) {
         const userId = UserStore.getState()?.idUser
         if (!userId) return;
-        return await api.put(`/StickerBoard/putfiled/${userId}`, {data})
+        return await api.put(`/StickerBoard/putfiled/${userId}`, {...data})
             .then(p => p.data)
             .catch(console.error)
     }

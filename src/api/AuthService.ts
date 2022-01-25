@@ -23,7 +23,7 @@ export namespace AuthService {
     }
 
     export async function registration(data: RegistrationData) {
-        api.post("registration", {...data, id: 0, uuid: "0"})
+        api.post("registration", {...data, idUser: 0, uuid: "0"})
             .then(p => p.status)
             .catch(console.error)
     }

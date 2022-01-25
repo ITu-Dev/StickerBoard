@@ -36,7 +36,8 @@ export const Workspace: FC = x => {
     const checkDeselect = (e) => {
         // deselect when clicked on empty area
         const clickedOnEmpty = e.target === e.target.getStage();
-        if (clickedOnEmpty) {
+        if (clickedOnEmpty && selected) {
+            StickerService.updateSticker(selected)
             setSelectedSticker(null)
         }
       };

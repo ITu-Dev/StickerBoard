@@ -76,7 +76,7 @@ export const Sidebar: FC<SidebarProps> = () => {
            }
         </div>
         {selectedSticker && <Button variant="outlined" color="error" size="small" onClick={() => deleteSticker()}>Delete sticker</Button>}
-        {selectedSticker && selectedSticker.field === undefined
+        {selectedSticker && selectedSticker.field === null
             && <Button variant="text" color="warning" onClick={onNewTextClickHandler} size="large">+ New text</Button>}
     </div>
 
@@ -133,7 +133,7 @@ export const Sidebar: FC<SidebarProps> = () => {
 
     return <div className={styles.sidebar}>
         {stickerEdit}
-        {selectedStickerText?.field && textEdit}
+        {selectedStickerText?.field !== null && textEdit}
         <Button variant="text"
                 color="error"
                 size="small"
