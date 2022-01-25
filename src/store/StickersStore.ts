@@ -25,7 +25,8 @@ export interface StickerModel {
     width: number
     height: number
     colorSticker: string
-    field?: Field
+    userUuid: string
+    field: Field | null
 }
 
 interface StickerEvents {

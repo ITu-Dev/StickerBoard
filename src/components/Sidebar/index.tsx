@@ -98,7 +98,7 @@ export const Sidebar: FC<SidebarProps> = () => {
         if (!selectedStickerText) return;
         if (!selectedStickerText.field) return;
         StickerService.deleteField(selectedStickerText.field.uuid)
-            .then(() => stickersUnit.events.updateRect({...selectedStickerText, field: undefined}))
+            .then(() => stickersUnit.events.updateRect({...selectedStickerText, field: null}))
     }
 
     const textEdit = <div className={styles.textEditSection}>

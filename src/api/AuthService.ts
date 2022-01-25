@@ -14,25 +14,16 @@ export namespace AuthService {
     }
 
     export async function auth(data: AuthData) {
-        api.post("/Identity", {login: data.login, password: data.password})
+        api.post("/Identity", {login: data.login, password: data.password, idUser: 0, uuid: "0"})
             .then(p => {
                 localStorage.setItem("user", JSON.stringify(p.data))
                 setUser(p.data as unknown as User)
             })
-            .catch(e => {
-                console.error(e)
-                const mockuser = {
-                    idUser: 1,
-                    login: 'login',
-                    userName: 'username'
-                }
-                setUser(mockuser)
-                localStorage.setItem("user", JSON.stringify(mockuser))
-            })
+            .catch(e => console.error(e))
     }
 
     export async function registration(data: RegistrationData) {
-        api.post("registration", {data})
+        api.post("registration", {...data, id: 0, uuid: "0"})
             .then(p => p.status)
             .catch(console.error)
     }

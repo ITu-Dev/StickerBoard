@@ -4,6 +4,7 @@ export interface User {
     idUser: number
     login: string
     userName: string
+    uuid: string
 }
 
 export const UserStore = createStore<User | null>(null);

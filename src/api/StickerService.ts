@@ -13,7 +13,8 @@ export namespace StickerService {
 
     export async function create( data: Partial<StickerModel>) {
         const userId = UserStore.getState()?.idUser
-        if (!userId) return;
+        const userUuid = UserStore.getState()?.uuid
+        if (!userId || !userUuid) return;
         return await api.post(`/StickerBoard/${userId}`, {
             colorSticker: data.colorSticker,
             x: data.x,
@@ -21,6 +22,11 @@ export namespace StickerService {
             rotation: data.rotation,
             height: data.height,
             width: data.width,
+            idSticker: 0,
+            userUuid,
+            uuid: "0",
+            field: null,
+            stickerName: "stub"
         })
             .then(p => p.data)
             .catch(console.error)
