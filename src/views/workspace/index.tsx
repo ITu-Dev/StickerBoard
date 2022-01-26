@@ -19,7 +19,6 @@ export const Workspace: FC = x => {
     const [windowSize, setWidowSize] = useState<windowSize>({width: 500, height: 500})
     const selected = useStore(selectedStickerStore);
 
-
     useLayoutEffect(() => {
         const updateSize = () => {
             setWidowSize({width: window.innerWidth, height: window.innerHeight});
@@ -29,7 +28,7 @@ export const Workspace: FC = x => {
     },[])
 
     const onDragStartHandler = (e: KonvaEventObject<DragEvent>, r: StickerModel) => {
-        stickersUnit.events.updateRect({...r, x: e.target.x(), y: e.target.y()})
+        //stickersUnit.events.updateRect({...r, x: e.target.x(), y: e.target.y()})
     };
 
     //@ts-ignore
@@ -45,9 +44,8 @@ export const Workspace: FC = x => {
       };
 
     const onDragStopHandler = (e: KonvaEventObject<DragEvent>, r: StickerModel) => {
-        const founded = store.find(s => s.idSticker === r.idSticker)
-        if (founded)
-            StickerService.updateSticker(r)
+        stickersUnit.events.updateRect({...r, x: e.target.x(), y: e.target.y()})
+        StickerService.updateSticker({...r, x: e.target.x(), y: e.target.y()})
     };
 
     return <div className={styles.workspace}>

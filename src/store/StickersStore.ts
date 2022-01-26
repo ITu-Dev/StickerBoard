@@ -42,7 +42,7 @@ const store = createStore<StickerModel[]>([]);
 
 const events = createApi<StickerModel[], ApiEvents<StickerModel[], StickerEvents>>(store, {
     setRects: (s, p) => ([...s, ...p]),
-    addRect: (s, p) => ([...s, {...p, idSticker: (s.length).toString()} ]),
+    addRect: (s, p) => ([...s, p ]),
     pushRect: (s, p) => {
         s.push(p)
         return (s);
@@ -50,8 +50,6 @@ const events = createApi<StickerModel[], ApiEvents<StickerModel[], StickerEvents
     removeRect: (s, p) => s.filter(r => r.idSticker !== p.idSticker),
     updateRect: (s, r) => s.map(rect => rect.idSticker === r.idSticker ? r : rect)
 })
-
-events.updateRect.watch(p => setSelectedSticker(p))
 
 
 export const stickersUnit: Model<StickerModel[], StickerEvents> = {
