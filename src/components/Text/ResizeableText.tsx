@@ -18,7 +18,7 @@ export interface ResizeableTextProps {
     onDoubleClick: () => void
     draggable: boolean
     dragBoundFn?: (pos: Vector2d) => Vector2d
-    dragStartHandler?: (e: KonvaEventObject<DragEvent>) => void
+    dragStopHandler?: (e: KonvaEventObject<DragEvent>) => void
 }
 
 export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: ForwardedRef<Konva.Text>) => {
@@ -54,7 +54,7 @@ export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: For
             <Text
                 draggable={x.draggable}
                 dragBoundFunc={pos => x.dragBoundFn?.(pos) ?? pos}
-                onDragStart={x.dragStartHandler}
+                onDragStart={x.dragStopHandler}
                 x={x.x}
                 y={x.y}
                 ref={mergeRefs([textRef, ref])}
@@ -71,6 +71,7 @@ export const ResizeableText = React.forwardRef((x: ResizeableTextProps, ref: For
                 width={x.width}
             />
             {x.isSelected && <Transformer
+                rotateEnabled={false}
                 ref={transformerRef}
                 boundBoxFunc={(oldBox, newBox) => newBox}
             />}

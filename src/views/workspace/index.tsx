@@ -1,11 +1,11 @@
 import React, { FC, useLayoutEffect, useState } from "react";
-import { StickerModel, stickersUnit } from "store/StickersStore";
+import { currentStickerPosition, setStickerPosition, StickerModel, stickersUnit } from "store/StickersStore";
 import { useStore } from "effector-react";
 import styles from "./Workspase.module.css"
 import { Layer, Stage } from "react-konva";
 import { KonvaEventObject } from "konva/types/Node";
 import { Sticker } from "components/Sticker";
-import { selectedStickerStore, setSelectedSticker } from "store/SelectedStickerStore";
+import { selectedStickerStore, setSelectedSticker, setSelectedStickerText} from "store/SelectedStickerStore";
 import { StickerService } from "api/StickerService";
 
 interface windowSize {
@@ -18,6 +18,7 @@ export const Workspace: FC = x => {
     const store = useStore(stickersUnit.store);
     const [windowSize, setWidowSize] = useState<windowSize>({width: 500, height: 500})
     const selected = useStore(selectedStickerStore);
+    const selectedStickerPosition = useStore(currentStickerPosition);
 
     useLayoutEffect(() => {
         const updateSize = () => {
@@ -38,15 +39,48 @@ export const Workspace: FC = x => {
         if (clickedOnEmpty && selected) {
             const founded = store.find(s => s.idSticker === selected.idSticker)
             if (founded)
-                StickerService.updateSticker(founded)
+                StickerService.updateSticker({
+                    ...founded, 
+                    x: selectedStickerPosition?.position.x ?? founded.x, 
+                    y: selectedStickerPosition?.position.y ?? founded.y,
+                    rotation: selectedStickerPosition?.position.rotation ?? founded.rotation})
+                    .then(p => stickersUnit.events.updateRect(p))
             setSelectedSticker(null)
         }
       };
 
     const onDragStopHandler = (e: KonvaEventObject<DragEvent>, r: StickerModel) => {
-        stickersUnit.events.updateRect({...r, x: e.target.x(), y: e.target.y()})
-        StickerService.updateSticker({...r, x: e.target.x(), y: e.target.y()})
+        setStickerPosition({
+            id: r.idSticker,
+            position: {
+                x: Math.round(e.target.x()),
+                y: Math.round(e.target.y()),
+                rotation: r.rotation
+            } 
+        })
+        
+        
     };
+
+    const textDragHandler = (e: KonvaEventObject<DragEvent>, r: StickerModel) => {
+        // if (!r.field?.idField) return;
+        // stickersUnit.events.updateRect({
+        //     ...r, 
+        //     field: {
+        //         ...r.field,
+        //         stickerUuid: r.uuid,
+        //         x: Math.round(e.target.x()), 
+        //         y: Math.round(e.target.y())
+        //     }});
+        //     setSelectedStickerText({
+        //         ...r, 
+        //         field: {
+        //             ...r.field,
+        //             stickerUuid: r.uuid,
+        //             x: Math.round(e.target.x()), 
+        //             y: Math.round(e.target.y())
+        //         }})
+    }
 
     return <div className={styles.workspace}>
         <Stage width={windowSize.width} height={windowSize.height}
@@ -56,21 +90,23 @@ export const Workspace: FC = x => {
             <Layer>
                 {
                     store.map((r, index) => <Sticker
-                        {...r}
-                            width={r.width}
-                            height={r.height}
-                            x={r.x} y={r.y}
                             key={index}
                             onSelect={() => {
                                 setSelectedSticker(r)
+                                setStickerPosition({
+                                    id: r.idSticker,
+                                    position: {
+                                        x: r.x,
+                                        y: r.y,
+                                        rotation: r.rotation 
+                                    } 
+                                })
                             }}
-                            onChange={(n) => stickersUnit.events.updateRect(n)}
                             isSelected={r.idSticker === selected?.idSticker}
-                            colorSticker={r.colorSticker}
-                            rotation={r.rotation} 
                             index={index}
                             onDragStart={(e) => onDragStartHandler(e, r)}
                             onDragStop={e => onDragStopHandler(e, r)}
+                            textDragHandler={e => textDragHandler(e, r)}
                             idSticker={r.idSticker}/>)
                 }
             </Layer>

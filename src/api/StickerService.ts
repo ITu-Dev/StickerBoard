@@ -1,7 +1,7 @@
 import { api } from "utils/api";
 import { UserStore } from "store/UserStore";
 import { Field, StickerModel } from "store/StickersStore";
-import { selectedStickerStore } from "store/SelectedStickerStore";
+import { selectedStickerStore, selectedStickerTextStore } from "store/SelectedStickerStore";
 
 export namespace StickerService {
     export async function getAll() {
@@ -26,7 +26,6 @@ export namespace StickerService {
             idSticker: 0,
             userUuid,
             uuid: "0",
-            field: null,
             stickerName: "stub"
         })
             .then(p => p.data)
@@ -36,19 +35,30 @@ export namespace StickerService {
     export async function updateSticker(data: StickerModel) {
         const userId = UserStore.getState()?.idUser
         if (!userId) return;
-        return await api.put(`/StickerBoard/putsticker/${userId}`, {...data})
+        return await api.put(`/StickerBoard/putsticker/${userId}`, {
+            idSticker: data.idSticker,
+            uuid: data.uuid,
+            x: data.x,
+            y: data.y,
+            rotation: data.rotation,
+            width: data.width,
+            height: data.height,
+            colorSticker: data.colorSticker,
+            userUuid: data.userUuid,
+            stickerName: "stub"
+        })
             .then(p => p.data)
             .catch(console.error)
     }
 
     export async function updateStickerText(data: Partial<Field>) {
         const userId = UserStore.getState()?.idUser
-        const stickerUuid = selectedStickerStore.getState()?.uuid
-        if (!userId && !stickerUuid) return;
-        return await api.put(`/StickerBoard/putfiled/${userId}`, {
-            idField: 0,
-            stickerUuid: stickerUuid,
-            uuid: "0",
+        if (!userId) return;
+        console.log(data, "text service")
+        return await api.put(`/StickerBoard/putfield/${userId}`, {
+            idField: data.idField ?? 0,
+            stickerUuid: data.stickerUuid,
+            uuid: data.uuid ?? "0",
             text: data.text,
             x: data.x,
             y: data.y,
@@ -73,8 +83,8 @@ export namespace StickerService {
     export async function deleteField(fieldUuid: string) {
         const userId = UserStore.getState()?.idUser
         if (!userId) return;
-        return await api.delete(`StickerBoard/deletefield/${userId}`, {data: fieldUuid})
-            .then(p => p.data)
+        return await api.delete(`StickerBoard/deletefield/${userId}`, {data: {fieldUuid}})
+            .then(p => p.status)
             .catch(console.error)
     }
 }

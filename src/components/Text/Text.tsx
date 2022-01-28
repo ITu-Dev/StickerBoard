@@ -21,7 +21,7 @@ export interface EditableTextProps {
     color: string
     draggable: boolean
     dragBoundFn?: (pos: Vector2d) => Vector2d
-    dragStartHandler?: (e: KonvaEventObject<DragEvent>) => void
+    dragStopHandler?: (e: KonvaEventObject<DragEvent>) => void
 }
 
 export const Text = React.forwardRef((x: EditableTextProps, ref: Ref<Konva.Text>) => {
@@ -43,7 +43,7 @@ export const Text = React.forwardRef((x: EditableTextProps, ref: Ref<Konva.Text>
             x={x.x}
             y={x.y}
             ref={ref}
-            dragStartHandler={x.dragStartHandler}
+            dragStopHandler={x.dragStopHandler}
             dragBoundFn={x.dragBoundFn}
             draggable={x.draggable}
             isSelected={x.isTransforming}

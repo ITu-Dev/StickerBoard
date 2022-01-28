@@ -24,8 +24,8 @@ export const Sidebar: FC<SidebarProps> = () => {
 
     const onNewStickerClickHandler = () => {
         StickerService.create({
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2,
+            x: Math.round(window.innerWidth / 2),
+            y:  Math.round(window.innerHeight / 2),
             width: 350,
             height: 250,
             colorSticker: col[selectedColor],
@@ -43,13 +43,14 @@ export const Sidebar: FC<SidebarProps> = () => {
                   height: 100,
                   rotation: 0,
                   fontSize: 14,
-                  color: "#555555"
+                  color: "#555555",
+                  stickerUuid: selectedSticker.uuid
               }
 
               StickerService.updateStickerText(field)
                   .then(p => {
-                      setSelectedSticker({...selectedSticker, field: p})
-                      stickersUnit.events.updateRect({...selectedSticker, field: p})
+                      setSelectedSticker(p)
+                      stickersUnit.events.updateRect(p)
                   })
           }
       }
@@ -81,14 +82,20 @@ export const Sidebar: FC<SidebarProps> = () => {
         if (!selectedStickerText) return;
         if (!selectedStickerText.field) return;
         StickerService.updateStickerText({...selectedStickerText.field, color: color})
-            .then(p => stickersUnit.events.updateRect(p))
+            .then(p => {
+                stickersUnit.events.updateRect(p)
+                setSelectedStickerText(p);
+            })
     }
 
     const changeFontSize = (size: number) => {
         if (!selectedStickerText) return;
         if (!selectedStickerText.field) return;
         StickerService.updateStickerText({...selectedStickerText.field, fontSize: size})
-            .then(p => stickersUnit.events.updateRect(p))
+            .then(p => {
+                stickersUnit.events.updateRect(p)
+                setSelectedStickerText(p);
+            })
     }
 
     const deleteText = () => {
